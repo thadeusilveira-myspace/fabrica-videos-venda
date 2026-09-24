@@ -1,0 +1,522 @@
+<title>Fábrica de vídeos de venda</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+  :root {
+    --ground: #E9EBEE;
+    --paper: #FFFFFF;
+    --paper2: #F4F5F7;
+    --ink: #14161A;
+    --muted: #5C6470;
+    --line: #D2D6DC;
+    --line2: #E3E6EA;
+    --signal: #D64200;
+    --signal-soft: #FFE7DC;
+    --stone: #8A2417;
+    --stone-soft: #FBE3DF;
+    --good: #1F6B45;
+    --good-soft: #DEEEE4;
+
+    --display: "IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+    --body: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0E1013; --paper: #171A1F; --paper2: #1E2228;
+      --ink: #E7EAEE; --muted: #98A0AC; --line: #2B3038; --line2: #23272E;
+      --signal: #FF7A44; --signal-soft: #3A1B0C;
+      --stone: #E58472; --stone-soft: #381813;
+      --good: #6FC79A; --good-soft: #13291E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0E1013; --paper: #171A1F; --paper2: #1E2228;
+    --ink: #E7EAEE; --muted: #98A0AC; --line: #2B3038; --line2: #23272E;
+    --signal: #FF7A44; --signal-soft: #3A1B0C;
+    --stone: #E58472; --stone-soft: #381813;
+    --good: #6FC79A; --good-soft: #13291E;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font: 400 16.5px/1.62 var(--body);
+    padding-inline: clamp(16px, 5vw, 56px); padding-block: 0 96px;
+  }
+  .folha { max-width: 1080px; margin-inline: auto; }
+  h1, h2, h3, h4 { margin: 0; font-family: var(--display); font-weight: 700; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: var(--signal); }
+
+  /* ---------- barra ---------- */
+  .barra {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    background: color-mix(in srgb, var(--ground) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    padding-block: 10px; margin-bottom: 40px;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em;
+  }
+  .barra .marca { font-family: var(--display); font-size: 14px; letter-spacing: .02em; text-transform: uppercase; margin-right: auto; }
+  .barra a { color: var(--muted); text-decoration: none; padding: 5px 9px; border-radius: 4px; }
+  .barra a:hover { color: var(--ink); background: var(--paper); }
+
+  /* ---------- topo ---------- */
+  .topo { padding-block: 8px 56px; border-bottom: 3px solid var(--ink); margin-bottom: 44px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--signal); margin-bottom: 18px; }
+  .topo h1 { font-size: clamp(40px, 8vw, 82px); line-height: .96; letter-spacing: -.015em; text-transform: uppercase; }
+  .topo .sub { font-size: clamp(17px, 2.3vw, 21px); line-height: 1.5; color: var(--muted); max-width: 40ch; margin-top: 22px; }
+  .topo .sub b { color: var(--ink); font-weight: 600; }
+
+  .medidas { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-top: 40px; }
+  .medida { background: var(--paper); padding: 16px 18px; display: grid; gap: 3px; }
+  .medida b { font-family: var(--display); font-size: 30px; line-height: 1; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .medida span { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); line-height: 1.35; }
+
+  /* ---------- seções ---------- */
+  section { padding-block: 52px 0; }
+  .cabeca { display: flex; align-items: baseline; gap: 14px; border-bottom: 1px solid var(--ink); padding-bottom: 10px; margin-bottom: 26px; flex-wrap: wrap; }
+  .cabeca h2 { font-size: clamp(24px, 3.6vw, 34px); text-transform: uppercase; letter-spacing: -.01em; }
+  .cabeca .nota { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-left: auto; }
+  .intro { max-width: 64ch; color: var(--muted); margin-bottom: 30px; }
+  .intro b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- arquivos ---------- */
+  .arquivos { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+  .arq { background: var(--paper); border: 1px solid var(--line); padding: 18px 18px 20px; display: grid; gap: 8px; align-content: start; }
+  .arq .nome { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--signal); word-break: break-all; }
+  .arq h3 { font-size: 17px; }
+  .arq p { font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+
+  /* ---------- leis ---------- */
+  .leis { display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .lei { display: grid; grid-template-columns: 62px 1fr; gap: 20px; padding-block: 20px; border-bottom: 1px solid var(--line); align-items: start; }
+  .lei .n { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--muted); padding-top: 5px; }
+  .lei h3 { font-size: 19px; margin-bottom: 7px; }
+  .lei p { font-size: 15.5px; line-height: 1.55; color: var(--muted); max-width: 62ch; }
+  .lei p + p { margin-top: 8px; }
+  .lei b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- marcos ---------- */
+  .marcos { display: grid; gap: 0; }
+  .marco { display: grid; grid-template-columns: 54px 1fr; gap: 20px; padding-block: 22px; border-bottom: 1px solid var(--line); }
+  .marco:first-child { border-top: 1px solid var(--line); }
+  .marco .num { font-family: var(--display); font-size: 34px; line-height: .9; color: var(--line); font-variant-numeric: tabular-nums; }
+  .marco h3 { font-size: 20px; margin-bottom: 8px; }
+  .marco p { font-size: 15.5px; color: var(--muted); max-width: 62ch; }
+  .aceite { margin-top: 12px; background: var(--good-soft); border-left: 3px solid var(--good); padding: 10px 14px; font-size: 14.5px; line-height: 1.5; }
+  .aceite b { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--good); display: block; margin-bottom: 3px; }
+
+  /* ---------- pedras ---------- */
+  .pedras { display: grid; gap: 14px; }
+  .pedra { background: var(--paper); border: 1px solid var(--line); display: grid; grid-template-columns: 52px 1fr; }
+  .pedra .id { background: var(--stone-soft); color: var(--stone); font-family: var(--mono); font-size: 15px; font-weight: 600; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+  .pedra .corpo { padding: 16px 18px; display: grid; gap: 9px; min-width: 0; }
+  .pedra h3 { font-size: 17.5px; }
+  .pedra dl { margin: 0; display: grid; gap: 7px; }
+  .pedra .par { display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: start; }
+  .pedra dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
+  .pedra dd { margin: 0; font-size: 15px; line-height: 1.5; }
+  .pedra dd.causa { color: var(--muted); }
+  .pedra dd em { color: var(--stone); font-style: italic; }
+
+  pre { background: var(--paper2); border: 1px solid var(--line2); padding: 12px 14px; overflow-x: auto; font: 400 12.5px/1.6 var(--mono); margin: 0; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--paper2); padding: 1px 5px; border-radius: 3px; }
+  .pedra pre { margin-top: 2px; }
+
+  /* ---------- padrao ---------- */
+  .duas { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 26px; }
+  .bloco h3 { font-size: 19px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--signal); display: inline-block; }
+  .bloco ul { margin: 0; padding-left: 18px; display: grid; gap: 7px; font-size: 15.5px; line-height: 1.5; }
+  .bloco li b { font-weight: 600; }
+  .cita { border-left: 3px solid var(--signal); background: var(--signal-soft); padding: 16px 18px; margin-block: 24px; font-size: 17px; line-height: 1.5; font-style: italic; }
+  .cita span { display: block; font-style: normal; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 9px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .rolagem { overflow-x: auto; border: 1px solid var(--line); background: var(--paper); }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line2); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--paper2); }
+  tr:last-child td { border-bottom: 0; }
+  td b { font-weight: 600; }
+
+  .selo { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+  .s-para { background: var(--stone-soft); color: var(--stone); }
+  .s-conf { background: var(--signal-soft); color: var(--signal); }
+  .s-ok { background: var(--good-soft); color: var(--good); }
+
+  .rodape { margin-top: 64px; border-top: 3px solid var(--ink); padding-top: 22px; font-size: 14.5px; color: var(--muted); max-width: 66ch; display: grid; gap: 9px; }
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="folha">
+
+<nav class="barra">
+  <span class="marca">Fábrica de vídeos</span>
+  <a href="#pacote">O pacote</a>
+  <a href="#leis">As leis</a>
+  <a href="#obra">A obra</a>
+  <a href="#pedras">As pedras</a>
+  <a href="#padrao">O padrão</a>
+</nav>
+
+<header class="topo">
+  <p class="eyebrow">Pacote semente · para construir do zero</p>
+  <h1>Fábrica de vídeos de venda</h1>
+  <p class="sub">Uma live de vendas de <b>1 a 3 horas</b> entra. Saem <b>10 a 15 vídeos verticais</b> de 25 a 50 segundos, prontos para postar, com câmera que se mexe e prova de que nenhum deles fala preço. Sem ninguém cortar nada à mão.</p>
+
+  <div class="medidas">
+    <div class="medida"><b>1h45</b><span>de live viram 13 vídeos</span></div>
+    <div class="medida"><b>90min</b><span>do arquivo cru ao link</span></div>
+    <div class="medida"><b>777</b><span>linhas no coração</span></div>
+    <div class="medida"><b>15</b><span>pedras já pagas</span></div>
+    <div class="medida"><b>20min</b><span>até a violação que ensinou a lei 7</span></div>
+  </div>
+</header>
+
+<section id="pacote">
+  <div class="cabeca"><h2>O que tem no pacote</h2><span class="nota">5 arquivos · 691 linhas</span></div>
+  <p class="intro">Isto <b>não é código para copiar</b>. São os documentos que o Claude Code de vocês lê para construir a mesma fábrica — sem gastar as semanas que a primeira gastou aprendendo. O código a gente reescreve em duas semanas; as pedras custam meses.</p>
+  <div class="arquivos">
+    <article class="arq">
+      <span class="nome">LEIA-PRIMEIRO.md</span>
+      <h3>O mapa</h3>
+      <p>Uma página: o que a fábrica faz, em que ordem ler o resto, e o que ela deliberadamente não resolve.</p>
+    </article>
+    <article class="arq">
+      <span class="nome">CLAUDE.md</span>
+      <h3>A constituição</h3>
+      <p>As 8 leis. Vai na raiz do projeto de vocês. Vale qualquer que seja a linguagem — código se troca, isto não.</p>
+    </article>
+    <article class="arq">
+      <span class="nome">CONSTRUIR.md</span>
+      <h3>O plano de obra</h3>
+      <p>7 marcos, cada um com critério que <b>ou passa ou não passa</b>. Um por vez, e cada um se prova antes do seguinte.</p>
+    </article>
+    <article class="arq">
+      <span class="nome">PEDRAS.md</span>
+      <h3>As armadilhas</h3>
+      <p>15 defeitos que já custaram caro, com sintoma, causa e conserto. A parte mais valiosa — e a única que não se descobre sozinho a tempo.</p>
+    </article>
+    <article class="arq">
+      <span class="nome">PADRAO-DE-EDICAO.md</span>
+      <h3>A receita visual</h3>
+      <p>O que faz o vídeo prender em vez de ser só um corte. Opinião testada, não lei — mas cada item apanhou para chegar ali.</p>
+    </article>
+  </div>
+</section>
+
+<section id="leis">
+  <div class="cabeca"><h2>As leis</h2><span class="nota">valem acima do código</span></div>
+  <div class="leis">
+    <div class="lei"><span class="n">LEI 1</span><div>
+      <h3>O que é dito no vídeo pronto se prova, não se confia</h3>
+      <p>Escolher trechos limpos não basta. <b>Cada arquivo final é transcrito de novo, do zero, e varrido atrás das palavras proibidas. O resultado tem que ser zero.</b></p>
+      <p>Entre escolher o trecho e gerar o vídeo há meia dúzia de passos, e qualquer um pode puxar meio segundo a mais. Já aconteceu: um ajustador de corte que desloca o ponto em até 0,9 s trouxe um valor para dentro de um vídeo aprovado.</p>
+    </div></div>
+    <div class="lei"><span class="n">LEI 2</span><div>
+      <h3>Nada vai ao ar sozinho</h3>
+      <p>A máquina edita sozinha. Ela <b>não</b> posta, <b>não</b> publica, <b>não</b> entrega. O que sai cai numa pasta de espera e só sai de lá por comando que registra <b>quem</b> liberou e <b>quando</b>.</p>
+      <p>Uma fila de revisão sem comando de saída é uma fila de mentira: ninguém aprova, todo mundo arrasta arquivo no Finder.</p>
+    </div></div>
+    <div class="lei"><span class="n">LEI 3</span><div>
+      <h3>Silêncio é o pior estado possível</h3>
+      <p>Formato que não lê, gravação deitada, disco cheio: tudo vira mensagem escrita <b>onde quem mandou o arquivo vai olhar</b> — dentro da pasta dele, não num log que só o programador abre.</p>
+      <p>Pasta parada sem explicação é o defeito mais caro, porque ninguém descobre que existe até alguém perguntar "cadê meus vídeos?".</p>
+    </div></div>
+    <div class="lei"><span class="n">LEI 4</span><div>
+      <h3>Cada falha tem nome próprio</h3>
+      <p>Render que falhou, transcrição que não rodou e vídeo que fala preço são <b>três</b> problemas e precisam de <b>três</b> mensagens.</p>
+      <p>O erro clássico: a verificação não acha o arquivo porque o render morreu, e anuncia "este vídeo fala preço". O dono vai procurar preço numa pasta vazia e perde a confiança no sistema inteiro.</p>
+    </div></div>
+    <div class="lei"><span class="n">LEI 5</span><div>
+      <h3>Medir antes de decidir</h3>
+      <p>Nada é presumido. Antes de cortar: <b>rotação</b> (o celular grava em pé e marca −90°), <b>atraso entre imagem e som</b> (de −0,04 s a +0,85 s, e muda por arquivo), <b>espelhamento</b> (câmera frontal inverte o rótulo) e <b>a fala</b>.</p>
+    </div></div>
+    <div class="lei"><span class="n">LEI 6</span><div>
+      <h3>Texto de tela é a parte mais frágil</h3>
+      <p>Nunca cortar no meio da palavra — limite cru escreve <em>"PERFUME SEDUTO"</em> na tela. Não promete preço nem prazo. Não fala da plataforma. E <b>onde</b> o texto vai muda conforme o enquadramento.</p>
+    </div></div>
+    <div class="lei"><span class="n">LEI 7</span><div>
+      <h3>O que a plataforma proíbe vence tudo</h3>
+      <p>Uma lista lida <b>pela máquina</b>, com três estados e nada além:</p>
+      <div class="rolagem" style="margin-top:10px">
+        <table>
+          <tr><td><span class="selo s-para">Proibido</span></td><td>para na hora — não transcreve, não corta, não edita</td></tr>
+          <tr><td><span class="selo s-conf">Conferir</span></td><td>edita, mas <b>não publica</b>, e avisa</td></tr>
+          <tr><td><span class="selo s-ok">Liberado</span></td><td>edita e publica</td></tr>
+          <tr><td><span class="selo s-conf">Fora da lista</span></td><td>trata como <b>Conferir</b> — o lado seguro</td></tr>
+        </table>
+      </div>
+      <p style="margin-top:10px">Não é teoria: um vídeo foi removido <b>20 minutos</b> depois de postado porque o produto era proibido. Nenhuma edição conserta isso.</p>
+    </div></div>
+    <div class="lei"><span class="n">LEI 8</span><div>
+      <h3>Falar a língua de quem usa</h3>
+      <p>Mensagem na tela, nome de pasta e estado nunca são o nome da variável nem o valor cru do banco. Quem opera a fábrica não é quem a programou.</p>
+    </div></div>
+  </div>
+</section>
+
+<section id="obra">
+  <div class="cabeca"><h2>O plano de obra</h2><span class="nota">um marco por vez</span></div>
+  <p class="intro">Cada marco tem um critério que <b>ou passa ou não passa</b>. Não existe "ficou bom". Aqui a numeração é sequência de verdade: nenhum marco funciona sem o anterior.</p>
+  <div class="marcos">
+    <div class="marco"><span class="num">0</span><div>
+      <h3>Provar o ambiente antes de escrever o sistema</h3>
+      <p>Não escreva a fábrica ainda. Prove que as três ferramentas funcionam nesta máquina: renderizar 3 segundos de tela preta; medir um arquivo (duração, tamanho, rotação, início de cada faixa); transcrever 60 segundos com o modelo local.</p>
+      <div class="aceite"><b>Aceite</b>Os três rodam por linha de comando e devolvem resultado que dá para ler num script. Gaste tempo aqui — descobrir no marco 4 que falta um filtro custa muito mais.</div>
+    </div></div>
+    <div class="marco"><span class="num">1</span><div>
+      <h3>Um trecho vira um vídeo</h3>
+      <p>Corte um trecho por segundos e renderize como vídeo vertical com uma frase na tela.</p>
+      <div class="aceite"><b>Aceite</b>O arquivo existe, a contagem de quadros bate com a duração pedida, e tem faixa de som <b>e</b> volume medido entre −18 e −11 LUFS. O "e" é o ponto: um conferidor que só pergunta "tem faixa de áudio?" aprova vídeo mudo.</div>
+    </div></div>
+    <div class="marco"><span class="num">2</span><div>
+      <h3>A câmera se mexe sozinha</h3>
+      <p>O vídeo é gravado em plano fixo e quem assiste desiste em segundos. Troca de plano a cada 3 a 6 segundos entre uns 4 tipos; empurrão lento contínuo com suavização; e "soco" — aproximação curta e rápida em cima de número e palavra de venda.</p>
+      <div class="aceite"><b>Aceite</b>40 segundos rendem de 7 a 12 trocas de plano, sem solavanco, e <b>o zoom nunca corta a cabeça de quem fala</b> — o que exige saber onde o rosto está.</div>
+    </div></div>
+    <div class="marco"><span class="num">3</span><div>
+      <h3>A fala manda na câmera</h3>
+      <p>Trocar de plano em <b>fim de frase</b>, nunca no meio da palavra. E montar um vocabulário por tipo de produto: roupa e cosmético não usam as mesmas palavras, e sem isso a câmera só alterna aberto/médio sem sentido.</p>
+      <div class="aceite"><b>Aceite</b>Nenhuma troca cai dentro de uma palavra, e num trecho em que se fala do produto a câmera está no plano de produto.</div>
+    </div></div>
+    <div class="marco"><span class="num">4</span><div>
+      <h3>A trava do assunto proibido</h3>
+      <p>A razão de a fábrica existir. Marcar toda fala com valor, nome de cliente ou prazo; escolher janelas de 28 a 50 s que não encostem nelas; gerar; e então <b>transcrever cada arquivo final de novo e varrer</b>.</p>
+      <div class="aceite"><b>Aceite</b>A varredura final dá zero. E, de propósito, apague um arquivo: a mensagem tem que ser "falta arquivo", nunca "fala preço".</div>
+    </div></div>
+    <div class="marco"><span class="num">5</span><div>
+      <h3>O lote e o relatório que mede</h3>
+      <p>13 vídeos levam quase uma hora. Rode o lote destacado do terminal, congele uma cópia do código antes de começar, e gere um relatório que <b>mede</b> cada arquivo.</p>
+      <div class="aceite"><b>Aceite</b>Feche o terminal no meio do lote e o lote continua. E o relatório reprova sozinho um arquivo que você estragou de propósito.</div>
+    </div></div>
+    <div class="marco"><span class="num">6</span><div>
+      <h3>A entrada automática</h3>
+      <p>Uma pasta é vigiada; quem manda o material joga a gravação lá e não avisa ninguém. Só começa quando o arquivo parou de crescer. E o produto se descobre <b>ouvindo</b> a gravação — numa live, a palavra mais repetida que não é palavra de ligação é o produto.</p>
+      <div class="aceite"><b>Aceite</b>Largue uma gravação na pasta e vá embora. Sem tocar em nada, os vídeos aparecem na pasta de espera com relatório e prova.</div>
+    </div></div>
+    <div class="marco"><span class="num">7</span><div>
+      <h3>O formato que prende</h3>
+      <p>Só depois que tudo acima funciona: o vídeo que abre por um <b>momento</b> da live em vez de abrir por uma mensagem. É o que mais rendeu, e é o que mais depende de gosto — por isso fica por último, quando a fábrica já é confiável.</p>
+    </div></div>
+  </div>
+</section>
+
+<section id="pedras">
+  <div class="cabeca"><h2>As pedras</h2><span class="nota">15 armadilhas já pagas</span></div>
+  <p class="intro">Onze das quinze são a mesma coisa vestida de roupas diferentes: <b>uma falha que se disfarça de outra coisa</b>. O detector que nunca dispara parece arquivo ainda subindo. O render que morreu parece vídeo falando preço. O vídeo mudo parece vídeo com som.</p>
+  <div class="pedras">
+
+    <article class="pedra"><div class="id">01</div><div class="corpo">
+      <h3>O ffmpeg que vem com a biblioteca de render é capado</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>Um filtro comum devolve "No such filter" e você duvida da sua sintaxe.</dd></div>
+        <div class="par"><dt>Causa</dt><dd class="causa">Compilação enxuta. Faltam <code>pad</code>, <code>setsar</code>, <code>fps</code>, <code>setpts</code>, <code>volumedetect</code>, <code>tile</code>, o muxer <code>rawvideo</code> e o encoder <code>null</code>.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd><code>-r</code> no lugar de <code>fps</code>; <code>-itsscale</code> no lugar de <code>setpts</code>; <code>loudnorm=print_format=json</code> no lugar de <code>volumedetect</code>. Se instalar um ffmpeg completo à parte, <b>decida qual dos dois cada script usa</b>.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">02</div><div class="corpo">
+      <h3>A renderização morre junto com a sessão do terminal</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>4 de 10 vídeos ficaram prontos e o resto sumiu sem erro.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Lote sempre destacado do terminal, com registro em arquivo e uma linha por vídeo: início, fim, deu certo ou não.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">03</div><div class="corpo">
+      <h3>Cada vídeo relê o código ao começar</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>Você conserta algo no meio de um lote e os vídeos saem misturados — os primeiros com o código velho, os últimos com o novo.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Copie o código para uma pasta congelada antes do lote e renderize a partir dela. Aí dá para mexer no código enquanto o lote roda.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">04</div><div class="corpo">
+      <h3>O detector de "terminou de subir" que nunca dispara</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>O vigia repete "ainda subindo" para sempre. O arquivo está parado há uma hora. Nenhum erro.</dd></div>
+        <div class="par"><dt>Causa</dt><dd class="causa">O relógio do "parado desde quando?" era regravado <b>a cada volta</b>, então a conta dava sempre o intervalo da vigia e nunca alcançava a espera exigida.</dd></div>
+      </dl>
+      <pre>// errado: regrava o relógio toda volta
+tamanhos.set(f, { tamanho, quando: agora() });
+
+// certo: o relógio só anda quando o TAMANHO muda
+if (!antes || antes.tamanho !== tamanho) {
+  tamanhos.set(f, { tamanho, mudouEm: agora() });
+  return false;
+}
+return agora() - antes.mudouEm &gt;= ESPERA;</pre>
+      <dl><div class="par"><dt>A lição</dt><dd><b>Teste detector de tempo com relógio simulado.</b> Esperar de verdade esconde o defeito, porque ninguém espera uma hora olhando.</dd></div></dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">05</div><div class="corpo">
+      <h3>A transcrição morre em gravação longa</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>O processo é morto pelo sistema, sem mensagem, em live de mais de 40 minutos.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Fatiar em pedaços de uns 25 minutos e juntar somando o deslocamento. Guarde cada pedaço em disco: se morrer, a retomada pula o que já foi feito. E <em>pedaço que não transcreveu é buraco</em> — não é fala limpa nem fala proibida.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">06</div><div class="corpo">
+      <h3>O zoom cego corta a cabeça</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>A câmera aproxima e decapita quem fala. Ou o selo do produto tapa os olhos.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Detectar o rosto ao longo do vídeo e usar isso para limitar o zoom e mover a mira. Com duas pessoas, a caixa é a <b>união</b> dos rostos — seguir o maior faz a câmera pular de uma para outra. E a proximidade se mede pela <b>altura</b>: a largura dá falso positivo.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">07</div><div class="corpo">
+      <h3>Colar áudio comprimido descola a voz da boca</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>No terceiro pedaço emendado a voz está adiantada. Pouco, mas incomoda.</dd></div>
+        <div class="par"><dt>Causa</dt><dd class="causa">Cada arquivo comprimido carrega um "enchimento" no começo, e colando sem recodificar eles se acumulam — <b>109 ms</b> no último bloco de três.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Converter para som não comprimido e colar pelo <b>filtro</b> de concatenação, que realinha a cada emenda: caiu para 39 ms. E atenção — duração igual de imagem e som <em>não prova</em> sincronia.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">08</div><div class="corpo">
+      <h3>O atraso entre imagem e som é por gravação</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>Você acerta o sincronismo numa leva e na seguinte está tudo errado de novo.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Medir o instante inicial das duas faixas em cada arquivo e guardar o valor <b>por arquivo</b>. Uma pasta com 13 gravações tem 13 atrasos diferentes.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">09</div><div class="corpo">
+      <h3>A imagem vem espelhada e o rótulo sai ao contrário</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>Ninguém percebe. Depois alguém vê que a marca do produto está invertida.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Não dá para adivinhar por creator nem por plataforma — duas lives do mesmo dia vêm uma espelhada e a outra não. Procure <b>texto dentro da cena</b> e leia. Sem texto na cena, o espelhamento não produz erro visível: anote isso em vez de chutar.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">10</div><div class="corpo">
+      <h3>O celular grava em pé e o arquivo diz que está deitado</h3>
+      <dl>
+        <div class="par"><dt>Causa</dt><dd class="causa">O arquivo guarda 3840×2160 <b>mais</b> uma marca de rotação de −90°.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Ler a rotação junto com as dimensões. Cuidado com a versão bug: <code>largura &lt; altura === false</code> em JavaScript é sempre falso — código morto que nunca reclama.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">11</div><div class="corpo">
+      <h3>O nome que vem de fora envenena o projeto inteiro</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd><b>Todos</b> os vídeos do lote falham em 3 segundos cada. O relatório só diz "arquivo final não existe", que aponta para o lugar errado.</dd></div>
+        <div class="par"><dt>Causa</dt><dd class="causa">O nome da pasta veio digitado por alguém, com espaço ou acento. O renderizador rejeita o <b>arquivo de composições inteiro</b> — um nome ruim derruba os 150 vídeos do projeto.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Limpar o nome <b>no código que escreve</b>. E guardar o sintoma: <em>lote inteiro falhando em segundos = erro no arquivo de composições, não no vídeo.</em></dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">12</div><div class="corpo">
+      <h3>Texto cortado no meio da palavra</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>Na tela aparece <em>"PERFUME SEDUTO"</em>. O cliente vê antes de você.</dd></div>
+        <div class="par"><dt>Causa</dt><dd class="causa">Um limite de caracteres cru — <code>slice(0, 52)</code>.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Nesta ordem: uma frase que caiba inteira → um pedaço até a vírgula que caiba → só no fim, aparar pela última palavra completa.</dd></div>
+        <div class="par"><dt>A lição</dt><dd><b>Olhe um quadro do vídeo pronto antes de dizer que está pronto.</b> Esse defeito estava em 10 de 13 vídeos e passou por todas as verificações automáticas, porque nenhuma olhava a tela.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">13</div><div class="corpo">
+      <h3>A fronteira de palavra não entende acento</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>A trava de assunto proibido reprova um vídeo limpo. A frase acusada é "vai <b>real</b>çar a cinturinha".</dd></div>
+        <div class="par"><dt>Causa</dt><dd class="causa">O <code>\b</code> do JavaScript só conhece <code>a-z0-9_</code>. O "ç" conta como fim de palavra, então <code>\breal\b</code> casa dentro de "realçar". O mesmo com "pagação", "ofertaço".</dd></div>
+        <div class="par"><dt>Conserto</dt><dd>Fronteira que conheça acento: <code>(?&lt;![\p{L}\p{N}_])</code> antes e <code>(?![\p{L}\p{N}_])</code> depois, com a bandeira <code>u</code>. E <b>teste nos dois sentidos</b> — afrouxar o filtro para matar o falso alarme é como se deixa passar preço de verdade.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">14</div><div class="corpo">
+      <h3>A data vem de Londres</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>A leva de hoje nasce carimbada com a data de amanhã.</dd></div>
+        <div class="par"><dt>Causa</dt><dd class="causa"><code>toISOString()</code> devolve UTC. Às 21h no Brasil já é o dia seguinte lá.</dd></div>
+      </dl>
+    </div></article>
+
+    <article class="pedra"><div class="id">15</div><div class="corpo">
+      <h3>O conferidor que não mede aprova vídeo mudo</h3>
+      <dl>
+        <div class="par"><dt>Sintoma</dt><dd>O relatório diz "tem som" e o vídeo está em silêncio.</dd></div>
+        <div class="par"><dt>Causa</dt><dd class="causa">A verificação perguntava "existe faixa de áudio?". Existe — só está vazia.</dd></div>
+        <div class="par"><dt>Conserto</dt><dd><b>Medir</b> o volume e reprovar fora da faixa. E um detalhe que custa uma hora: a medição de volume do ffmpeg sai na <b>saída de erro</b>, não na saída padrão.</dd></div>
+      </dl>
+    </div></article>
+
+  </div>
+</section>
+
+<section id="padrao">
+  <div class="cabeca"><h2>O padrão que prende</h2><span class="nota">opinião testada</span></div>
+  <p class="intro">As leis e as pedras valem para qualquer um. Isto aqui é opinião — o formato aprovado por quem vende. O contrário dele, um corte limpo da live sem mais nada, foi <b>reprovado</b>: não adianta entregar o trecho certo se ele parece uma live.</p>
+
+  <div class="duas">
+    <div class="bloco">
+      <h3>A receita</h3>
+      <ul>
+        <li>Troca de plano a cada <b>3 a 6 segundos</b>, sempre em fim de frase</li>
+        <li>Empurrão lento o tempo todo, com suavização na entrada e na saída</li>
+        <li><b>Soco</b>: aproximação curta em número e palavra de venda, e volta</li>
+        <li>Corte seco e emenda <b>viram efeito</b>: enquadramento novo, clarão e som</li>
+        <li><b>Sem legenda na tela</b> — a transcrição guia a câmera, não vira legenda</li>
+        <li>Som normalizado em <b>−14 LUFS</b></li>
+        <li><b>Sem música embutida</b>: vídeo com link de produto só pode usar som da biblioteca comercial da plataforma</li>
+        <li>Fala medida em palavras por minuto — a referência de um vídeo de 11 milhões é <b>227</b></li>
+      </ul>
+    </div>
+    <div class="bloco">
+      <h3>Onde o texto vai</h3>
+      <div class="rolagem">
+        <table>
+          <tr><th>Enquadramento</th><th>Gancho e botão</th></tr>
+          <tr><td>Corpo inteiro / loja</td><td>no meio — no alto tapa o rosto</td></tr>
+          <tr><td>Selfie com produto na mão</td><td>no alto — no meio tapa o rótulo</td></tr>
+          <tr><td>Produto grande à frente do corpo</td><td>embaixo — rosto no alto, produto no meio</td></tr>
+        </table>
+      </div>
+      <p style="margin-top:12px;font-size:15px;color:var(--muted)">E cuidado com colisão: se existe uma seta fixa numa altura, o botão não pode cair perto dela.</p>
+    </div>
+  </div>
+
+  <div class="cita">
+    "Às vezes é necessário pegar um momento totalmente diferente e inusitado na live e usar como gancho para prender atenção nos 3 segundos. Momentos prendem infinitamente mais do que uma mensagem."
+    <span>O formato que mais rendeu</span>
+  </div>
+
+  <div class="duas">
+    <div class="bloco">
+      <h3>Como se acha um momento</h3>
+      <p style="font-size:15.5px;color:var(--muted);margin-bottom:10px">Por <b style="color:var(--ink)">medição</b>, não por leitura. Procurar no texto não funciona: numa live o texto é o discurso repetido — numa delas, "não quebra" aparecia 39 vezes.</p>
+      <ul>
+        <li><b>Som</b>: picos 3× acima do normal — risada, susto, estalo, grito</li>
+        <li><b>Imagem</b>: mudança brusca de cena — o produto entrando na lente</li>
+        <li><b>Fala</b>: só para achar resposta ao chat e <b>confissão pessoal</b>, onde a pessoa sai do script e fala como gente</li>
+      </ul>
+    </div>
+    <div class="bloco">
+      <h3>As quatro regras</h3>
+      <ul>
+        <li>O momento vai nos <b>3 primeiros segundos</b>. Sem introdução, sem "oi gente"</li>
+        <li>Uma frase curta de espanto na tela, no tom de quem assiste junto</li>
+        <li>A venda entra <b>depois</b>, com o olho já preso</li>
+        <li>O momento precisa <b>provar algo do produto</b> — momento engraçado que não prova nada rende visualização e não rende venda</li>
+      </ul>
+      <p style="margin-top:12px;font-size:15px;color:var(--muted)">Não servem: problema de entrega, reclamação, reembolso — prendem e matam a venda. Nem falar da plataforma: prende e não vende nada.</p>
+    </div>
+  </div>
+
+  <div class="cita" style="border-left-color:var(--stone);background:var(--stone-soft)">
+    "Eu só não lembro o nome dele nunca, ai. Eu sempre esqueço." — e emendando em "vou ser sincera pra você: não é 100% igual, mas lembra muito…"
+    <span>Um momento de verdade, achado num pico 4,6× acima do normal · na tela: "NEM ELA LEMBRA / O NOME DELE"</span>
+  </div>
+</section>
+
+<footer class="rodape">
+  <p><b>Como saber se a fábrica ficou boa.</b> Entregue uma live de 1 hora a quem nunca usou o sistema. Ele deve devolver os vídeos com a prova zerada sem precisar perguntar nada a ninguém. Se ele perguntar "como eu provo que não fala preço?" ou "onde vejo se deu erro?", falta a lei 1 ou a lei 3.</p>
+  <p>O que este pacote não resolve: não diz quais vídeos vendem (não há ligação de volta com o resultado da loja), não escreve bom texto de tela sozinho, e não julga se o produto pode ser anunciado.</p>
+</footer>
+
+</div>
