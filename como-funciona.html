@@ -1,0 +1,354 @@
+<title>A máquina de fazer vídeos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+  :root {
+    --ground:#E8ECF2; --paper:#FFFFFF; --paper2:#F3F6FA;
+    --ink:#0F141B; --muted:#5A6676; --line:#C9D2DE;
+    --azul:#1B5FCC; --azul-fraco:#DCE8FB;
+    --amarelo:#F5B700; --amarelo-fraco:#FFF3D1;
+    --verde:#0E7A52; --verde-fraco:#D8F0E5;
+    --vermelho:#C4301C; --vermelho-fraco:#FBE0DC;
+    --display:"Bricolage Grotesque","Arial Black",sans-serif;
+    --corpo:"Source Sans 3","Helvetica Neue",Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --ground:#0C1017; --paper:#151B24; --paper2:#1C232D;
+    --ink:#E9EEF5; --muted:#94A1B2; --line:#2A3441;
+    --azul:#6BA2FF; --azul-fraco:#16263F;
+    --amarelo:#FFCB3D; --amarelo-fraco:#33280A;
+    --verde:#4FC493; --verde-fraco:#0E2A1F;
+    --vermelho:#FF7A63; --vermelho-fraco:#33150F;
+  }}
+  :root[data-theme="dark"]{
+    --ground:#0C1017; --paper:#151B24; --paper2:#1C232D;
+    --ink:#E9EEF5; --muted:#94A1B2; --line:#2A3441;
+    --azul:#6BA2FF; --azul-fraco:#16263F;
+    --amarelo:#FFCB3D; --amarelo-fraco:#33280A;
+    --verde:#4FC493; --verde-fraco:#0E2A1F;
+    --vermelho:#FF7A63; --vermelho-fraco:#33150F;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);
+    font:400 17px/1.6 var(--corpo);
+    padding-inline:clamp(16px,5vw,48px);padding-block:0 90px}
+  .folha{max-width:1000px;margin-inline:auto}
+  h1,h2,h3{margin:0;font-family:var(--display);font-weight:800;text-wrap:balance;letter-spacing:-.02em}
+  p{margin:0}
+
+  /* topo */
+  .topo{padding-block:40px 36px}
+  .topo h1{font-size:clamp(38px,8.5vw,76px);line-height:.94}
+  .topo .um{font-size:clamp(19px,2.6vw,25px);line-height:1.45;color:var(--muted);max-width:28ch;margin-top:20px}
+  .topo .um b{color:var(--ink);font-weight:700}
+
+  /* a esteira do topo */
+  .esteira{background:var(--paper);border:2px solid var(--ink);border-radius:18px;
+    padding:22px;margin-top:30px;display:grid;grid-template-columns:1fr auto 1fr;
+    gap:16px;align-items:center}
+  .lado{display:grid;gap:8px;justify-items:center;text-align:center}
+  .lado .rot{font-family:var(--display);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .lado .txt{font-size:15px;line-height:1.35;color:var(--muted);max-width:20ch}
+  .lado .txt b{color:var(--ink)}
+  .seta{display:grid;justify-items:center;gap:5px}
+  .seta .t{font-family:var(--display);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--azul)}
+  @media (max-width:640px){ .esteira{grid-template-columns:1fr} .seta svg{transform:rotate(90deg)} }
+
+  /* seções */
+  section{padding-block:46px 0}
+  .titulo{display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+  .titulo h2{font-size:clamp(26px,4.4vw,40px);line-height:1.05}
+  .titulo .fita{font-family:var(--display);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    background:var(--ink);color:var(--paper);padding:5px 11px;border-radius:99px}
+  .sob{color:var(--muted);max-width:58ch;margin-bottom:26px;font-size:17px}
+
+  /* etapas da máquina */
+  .etapas{display:grid;gap:12px}
+  .etapa{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;display:grid;grid-template-columns:52px 1fr;gap:16px;align-items:start}
+  .etapa .fig{width:52px;height:52px;border-radius:12px;background:var(--azul-fraco);
+    display:grid;place-items:center}
+  .etapa .fig svg{width:28px;height:28px;stroke:var(--azul);fill:none;stroke-width:2;
+    stroke-linecap:round;stroke-linejoin:round}
+  .etapa h3{font-size:19px;margin-bottom:3px}
+  .etapa p{font-size:16px;line-height:1.5;color:var(--muted)}
+  .etapa .porque{margin-top:7px;font-size:14.5px;background:var(--paper2);
+    border-left:3px solid var(--line);padding:8px 12px;border-radius:0 8px 8px 0;color:var(--muted)}
+  .etapa .porque b{color:var(--ink);font-weight:600}
+  .etapa.humano .fig{background:var(--amarelo-fraco)}
+  .etapa.humano .fig svg{stroke:var(--amarelo)}
+
+  /* passos */
+  .passos{display:grid;gap:16px}
+  .passo{background:var(--paper);border:2px solid var(--ink);border-radius:16px;overflow:hidden}
+  .passo .top{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--amarelo-fraco);border-bottom:2px solid var(--ink)}
+  .passo .n{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--paper);
+    font-family:var(--display);font-size:20px;display:grid;place-items:center;flex:none}
+  .passo .top h3{font-size:21px}
+  .passo .corpo{padding:16px 18px;display:grid;gap:12px}
+  .passo p{font-size:16.5px;line-height:1.55}
+  .caminho{font-family:ui-monospace,Menlo,monospace;font-size:14px;background:var(--paper2);
+    border:1px solid var(--line);border-radius:8px;padding:11px 13px;overflow-x:auto;white-space:nowrap}
+  .dica{font-size:15px;color:var(--muted);display:flex;gap:9px;align-items:flex-start}
+  .dica svg{width:17px;height:17px;flex:none;margin-top:3px;stroke:var(--azul);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+  /* nunca */
+  .nuncas{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  .nunca{background:var(--vermelho-fraco);border-radius:14px;padding:16px 18px;display:grid;gap:7px}
+  .nunca h3{font-size:17px;color:var(--vermelho);display:flex;align-items:center;gap:9px}
+  .nunca h3 svg{width:19px;height:19px;flex:none;stroke:var(--vermelho);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .nunca p{font-size:15.5px;line-height:1.45;color:var(--ink)}
+
+  /* problema */
+  .problemas{display:grid;gap:10px}
+  .prob{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+    display:grid;grid-template-columns:1fr;gap:6px}
+  .prob .q{font-family:var(--display);font-size:17px}
+  .prob .a{font-size:16px;color:var(--muted);line-height:1.5}
+  .prob .a b{color:var(--ink);font-weight:600}
+
+  /* números */
+  .numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:8px}
+  .num{background:var(--verde-fraco);border-radius:14px;padding:16px 18px;display:grid;gap:3px}
+  .num b{font-family:var(--display);font-size:32px;line-height:1;color:var(--verde);font-variant-numeric:tabular-nums}
+  .num span{font-size:14px;line-height:1.3;color:var(--ink)}
+
+  .fim{margin-top:56px;background:var(--paper);border:2px dashed var(--line);border-radius:16px;
+    padding:22px;font-size:17px;line-height:1.6;color:var(--muted);max-width:62ch}
+  .fim b{color:var(--ink);font-weight:700}
+  :focus-visible{outline:3px solid var(--azul);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="folha">
+
+<header class="topo">
+  <h1>A máquina de<br>fazer vídeos</h1>
+  <p class="um">Você joga <b>uma live inteira</b> numa pasta. Ela devolve <b>treze vídeos curtos</b> prontos para postar. Sem ninguém cortar nada.</p>
+
+  <div class="esteira">
+    <div class="lado">
+      <span class="rot">Entra</span>
+      <svg viewBox="0 0 64 64" width="58" height="58" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted)">
+        <rect x="6" y="18" width="52" height="28" rx="4"/>
+        <circle cx="20" cy="32" r="6"/><circle cx="44" cy="32" r="6"/>
+        <path d="M6 24h52M6 40h52"/>
+      </svg>
+      <p class="txt"><b>1 gravação</b><br>de 1 a 3 horas</p>
+    </div>
+    <div class="seta">
+      <span class="t">90 min</span>
+      <svg viewBox="0 0 48 24" width="60" height="30" fill="none" stroke="var(--azul)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12h40M34 4l8 8-8 8"/>
+      </svg>
+      <span class="t" style="color:var(--muted)">sozinha</span>
+    </div>
+    <div class="lado">
+      <span class="rot">Sai</span>
+      <svg viewBox="0 0 76 64" width="72" height="58" fill="none" stroke="var(--verde)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="10" width="20" height="44" rx="3"/>
+        <rect x="28" y="10" width="20" height="44" rx="3"/>
+        <rect x="52" y="10" width="20" height="44" rx="3"/>
+        <path d="M11 24l6 4-6 4zM35 24l6 4-6 4zM59 24l6 4-6 4z" fill="var(--verde)" stroke="none"/>
+      </svg>
+      <p class="txt"><b>13 vídeos</b><br>de 25 a 50 segundos</p>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="titulo"><span class="fita">Parte 1</span><h2>O que a máquina faz sozinha</h2></div>
+  <p class="sob">São nove passos, um atrás do outro. Ela faz todos sem perguntar nada — como uma esteira de fábrica.</p>
+
+  <div class="etapas">
+
+    <div class="etapa">
+      <div class="fig"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="11" cy="18" r="2" fill="currentColor" stroke="none"/></svg></div>
+      <div>
+        <h3>1 · Mede a gravação</h3>
+        <p>Olha o vídeo com uma régua: está em pé ou deitado? O som começa junto com a imagem? A imagem está espelhada?</p>
+        <div class="porque"><b>Por quê:</b> celular grava torto e cada gravação tem o som um pouquinho fora de hora. Se ela não medir, o vídeo sai com a voz fora da boca.</div>
+      </div>
+    </div>
+
+    <div class="etapa">
+      <div class="fig"><svg viewBox="0 0 24 24"><path d="M12 3v11M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg></div>
+      <div>
+        <h3>2 · Ouve a live inteira</h3>
+        <p>Escuta as duas horas e escreve tudo o que foi dito, marcando o minuto e o segundo de cada frase.</p>
+        <div class="porque"><b>Por quê:</b> é ouvindo que ela descobre <b>qual é o produto</b> — numa live a pessoa repete o nome do produto o tempo todo.</div>
+      </div>
+    </div>
+
+    <div class="etapa">
+      <div class="fig"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/><path d="M8 11h6M11 8v6"/></svg></div>
+      <div>
+        <h3>3 · Procura o que não pode</h3>
+        <p>Marca com caneta vermelha toda frase que fala de <b>preço</b>, de <b>nome de cliente</b> ou de <b>prazo</b> ("só hoje", "última peça").</p>
+        <div class="porque"><b>Por quê:</b> o preço da live não vale mais amanhã. E o nome de quem estava no chat não pode virar vídeo.</div>
+      </div>
+    </div>
+
+    <div class="etapa">
+      <div class="fig"><svg viewBox="0 0 24 24"><path d="M3 12h3l2-6 3 12 3-9 2 5h5"/></svg></div>
+      <div>
+        <h3>4 · Caça os momentos</h3>
+        <p>Procura onde o som <b>deu um pulo</b> — risada, susto, alguma coisa caindo. É ali que costuma estar o pedaço mais interessante.</p>
+        <div class="porque"><b>Por quê:</b> um momento inesperado prende muito mais que uma frase bonita. Ela não procura isso lendo, procura <b>escutando o volume</b>.</div>
+      </div>
+    </div>
+
+    <div class="etapa">
+      <div class="fig"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16M16 4v16"/><path d="M3 9h5M16 9h5M3 15h5M16 15h5"/></svg></div>
+      <div>
+        <h3>5 · Escolhe os pedaços</h3>
+        <p>Separa 10 a 15 trechos de meio minuto que <b>não encostam</b> em nenhuma frase marcada de vermelho, e que falam de coisas diferentes.</p>
+        <div class="porque"><b>Por quê:</b> se todos falarem a mesma coisa, sai o mesmo vídeo dez vezes.</div>
+      </div>
+    </div>
+
+    <div class="etapa">
+      <div class="fig"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 7.5L20 19M8.5 16.5L20 5"/></svg></div>
+      <div>
+        <h3>6 · Corta</h3>
+        <p>Recorta cada pedaço da gravação grande e guarda como um vídeo pequeno.</p>
+      </div>
+    </div>
+
+    <div class="etapa">
+      <div class="fig"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/></svg></div>
+      <div>
+        <h3>7 · Procura o rosto</h3>
+        <p>Antes de aproximar a câmera, ela marca onde está a cabeça de quem fala, quadro por quadro.</p>
+        <div class="porque"><b>Por quê:</b> sem isso o zoom <b>corta a cabeça</b> da pessoa quando ela se mexe.</div>
+      </div>
+    </div>
+
+    <div class="etapa">
+      <div class="fig"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/><path d="M15.5 15.5l2.5 2.5 4-5" stroke-width="2.6"/></svg></div>
+      <div>
+        <h3>8 · Monta o vídeo bonito</h3>
+        <p>Aqui a mágica: a câmera <b>troca de ângulo a cada 3 a 6 segundos</b>, dá um empurrãozinho lento o tempo todo e um "soco" rápido nas palavras fortes. Põe o título em cima, o selo do produto e o botão no fim.</p>
+        <div class="porque"><b>Por quê:</b> o vídeo foi gravado com a câmera parada. Sem esse trabalho, parece uma live — e as pessoas passam direto.</div>
+      </div>
+    </div>
+
+    <div class="etapa">
+      <div class="fig" style="background:var(--verde-fraco)"><svg viewBox="0 0 24 24" style="stroke:var(--verde)"><path d="M4 12l5 5L20 6"/><circle cx="12" cy="12" r="10" opacity=".28"/></svg></div>
+      <div>
+        <h3>9 · Escuta tudo de novo, para provar</h3>
+        <p>Pega cada vídeo <b>já pronto</b>, escuta de novo do zero e procura as palavras proibidas. Tem que dar <b>zero</b>.</p>
+        <div class="porque"><b>Por quê:</b> esta é a parte mais importante de todas. Não basta ter escolhido bem — ela precisa <b>provar</b> que o vídeo que saiu está limpo. É a diferença entre "eu acho que está certo" e "está certo".</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <div class="titulo"><span class="fita">Parte 2</span><h2>O que você faz</h2></div>
+  <p class="sob">Só três coisas. O resto é ela.</p>
+
+  <div class="passos">
+
+    <div class="passo">
+      <div class="top"><span class="n">1</span><h3>Joga a gravação na pasta</h3></div>
+      <div class="corpo">
+        <p>Crie uma pasta com o <b>nome do produto</b> e arraste a gravação para dentro:</p>
+        <div class="caminho">0-ENTRADA/perfume-sabah-al-ward/live-de-ontem.mp4</div>
+        <div class="dica"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Não precisa avisar ninguém. Ela começa sozinha <b>dois minutos</b> depois que o arquivo terminar de subir.</span></div>
+        <div class="dica"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Esqueceu de criar a pasta e jogou o arquivo solto? Ela <b>ouve e descobre sozinha</b> qual é o produto, e cria a pasta.</span></div>
+      </div>
+    </div>
+
+    <div class="passo">
+      <div class="top"><span class="n">2</span><h3>Espera e acompanha</h3></div>
+      <div class="corpo">
+        <p>Dentro da <b>sua</b> pasta aparece um arquivo chamado <code>_STATUS.txt</code>. É a máquina falando com você: o que recebeu, o que está fazendo, quando terminou, ou por que parou.</p>
+        <div class="dica"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Uma live de 1 hora leva perto de 40 minutos. Uma de 2 horas e meia leva umas 2 horas.</span></div>
+      </div>
+    </div>
+
+    <div class="passo">
+      <div class="top"><span class="n">3</span><h3>Confere e libera</h3></div>
+      <div class="corpo">
+        <p>Os vídeos ficam numa <b>sala de espera</b>. Eles não saem de lá sozinhos — alguém precisa olhar e dizer que pode.</p>
+        <div class="caminho">node scripts/aprovar.mjs &lt;produto&gt; &lt;leva&gt;</div>
+        <p style="font-size:16px;color:var(--muted)">Antes de liberar, confira três coisas que a máquina <b>não</b> sabe fazer:</p>
+        <div class="dica"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg><span><b>Leia os títulos.</b> Ela escreve um palpite a partir da fala e acerta mais ou menos a metade.</span></div>
+        <div class="dica"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg><span><b>Veja se a imagem está espelhada.</b> Se tiver alguma marca escrita ao contrário, avise.</span></div>
+        <div class="dica"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg><span><b>Ouça um vídeo.</b> Ela mede o som, mas não escuta. Só ouvido de gente percebe se ficou estranho.</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <div class="titulo"><span class="fita">Parte 3</span><h2>O que ela nunca faz</h2></div>
+  <p class="sob">Não é que ela não consiga. É que foi combinado que não pode — e cada uma dessas regras existe por causa de um problema que já aconteceu de verdade.</p>
+
+  <div class="nuncas">
+    <div class="nunca">
+      <h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg>Nunca posta</h3>
+      <p>Ela edita e para. Quem posta é gente. Uma máquina postando sozinha numa conta de loja é risco que não compensa.</p>
+    </div>
+    <div class="nunca">
+      <h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg>Nunca fala preço</h3>
+      <p>Nenhum valor, nenhum desconto, nenhum cupom. O preço da live não vale amanhã, e o vídeo fica no ar por meses.</p>
+    </div>
+    <div class="nunca">
+      <h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg>Nunca põe música</h3>
+      <p>Vídeo com link de produto só pode usar música da biblioteca do próprio TikTok. Música de fora faz o vídeo ficar mudo.</p>
+    </div>
+    <div class="nunca">
+      <h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg>Nunca mexe em produto proibido</h3>
+      <p>Tem produto que o TikTok não deixa anunciar. Um vídeo nosso foi tirado do ar <b>20 minutos</b> depois de postado por causa disso.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="titulo"><span class="fita">Parte 4</span><h2>Se alguma coisa der errado</h2></div>
+  <p class="sob">A primeira coisa a fazer é sempre a mesma: abrir o <code>_STATUS.txt</code> da sua pasta. Quase sempre a resposta está lá.</p>
+
+  <div class="problemas">
+    <div class="prob">
+      <p class="q">"Faz uma hora e não aconteceu nada"</p>
+      <p class="a">Veja se o arquivo está <b>dentro de uma pasta com nome de produto</b>, e não solto. E confira o <code>_STATUS.txt</code>: pode ser que o formato do arquivo não seja de vídeo, ou que o disco esteja cheio.</p>
+    </div>
+    <div class="prob">
+      <p class="q">"Ela disse que não saiu nenhum vídeo"</p>
+      <p class="a">Quer dizer que a live fala de preço quase o tempo todo e não sobrou nenhum pedaço limpo de meio minuto. Não é defeito — é a regra funcionando.</p>
+    </div>
+    <div class="prob">
+      <p class="q">"Os vídeos não aparecem no site"</p>
+      <p class="a">O site só mostra o que foi <b>liberado</b>. Enquanto estiverem na sala de espera, não aparecem para ninguém de fora.</p>
+    </div>
+    <div class="prob">
+      <p class="q">"Ela parou e disse que o produto é proibido"</p>
+      <p class="a">Está certo em parar. Nenhuma edição resolve um produto que a plataforma não deixa anunciar. As gravações ficam guardadas, nada foi apagado.</p>
+    </div>
+    <div class="prob">
+      <p class="q">"Tem uma palavra cortada no meio na tela"</p>
+      <p class="a">Avise. O título é escrito por palpite e pode sair errado — <b>é a parte que mais precisa de olho humano</b>, e é por isso que ninguém libera sem olhar.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="titulo"><span class="fita">Até agora</span><h2>O que ela já fez</h2></div>
+  <div class="numeros">
+    <div class="num"><b>143</b><span>vídeos entregues</span></div>
+    <div class="num"><b>13</b><span>vídeos de uma live só, em 90 minutos</span></div>
+    <div class="num"><b>0</b><span>vídeos falando preço</span></div>
+    <div class="num"><b>9</b><span>produtos diferentes</span></div>
+  </div>
+</section>
+
+<div class="fim">
+  <p><b>Uma coisa para guardar.</b> A parte mais importante da máquina não é a que faz o vídeo bonito. É a última: <b>escutar tudo de novo depois de pronto, para provar que está limpo</b>.</p>
+  <p style="margin-top:12px">É por isso que dá para confiar nela — não porque ela promete, mas porque ela <b>mostra</b>.</p>
+</div>
+
+</div>
